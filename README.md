@@ -15,7 +15,7 @@ base on toml's golang config library
 
 ## Use config
 
-see config_test.go
+See config_test.go
 
 
 ## About
