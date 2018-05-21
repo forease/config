@@ -202,6 +202,32 @@ func (c *Config) Array(key string) ([]interface{}, error) {
 	return nil, errors.New("Type Not Match Array")
 }
 
+func (c *Config) ArrayString(key string) ([]string, error) {
+	array, err := c.Array(key)
+	if err != nil {
+		return nil, err
+	}
+
+	var strArray []string
+	for _, v := range array {
+		switch vv := v.(type) {
+		case string:
+			strArray = append(strArray, vv)
+		}
+	}
+
+	return strArray, nil
+}
+
+func (c *Config) Array2String(key, sep string) (string, error) {
+	array, err := c.ArrayString(key)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Join(array, sep), nil
+}
+
 func (c *Config) Map(key string) (map[string]interface{}, error) {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
