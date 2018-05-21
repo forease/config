@@ -2,12 +2,17 @@
 // 北京实易时代科技有限公司
 // 2014-10-22 V0.1.1
 // 增加float64类型
+// 2018-05-21 V0.1.2
+// 增加读写锁
+
 package config
 
 import (
 	"errors"
-	"github.com/BurntSushi/toml"
 	"strings"
+	"sync"
+
+	"github.com/BurntSushi/toml"
 )
 
 type Config struct {
@@ -15,6 +20,7 @@ type Config struct {
 	Version   string
 	PathLevel int
 	Item      map[string]interface{}
+	lock      *sync.RWMutex
 }
 
 func NewConfig(file string, level int) (*Config, error) {
@@ -25,8 +31,9 @@ func NewConfig(file string, level int) (*Config, error) {
 
 	c := new(Config)
 	c.ConfFile = file
-	c.Version = "0.1.1"
+	c.Version = "0.1.2"
 	c.PathLevel = level
+	c.lock = new(sync.RWMutex)
 	c.Item = make(map[string]interface{})
 	c.loadConfig(tmp, []string{})
 
@@ -62,7 +69,9 @@ func (c *Config) loadConfig(tree interface{}, path []string) {
 		//}
 		default:
 			//case string:
+			c.lock.Lock()
 			c.Item[pathKey] = orig
+			c.lock.Unlock()
 			//case int:
 			//    config[pathKey] = orig
 
@@ -97,6 +106,9 @@ func (c *Config) loadConfig(tree interface{}, path []string) {
 }
 
 func (c *Config) Int(key string, def int) (int, error) {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
 	value, ok := c.Item[key]
 	if !ok {
 		return def, nil
@@ -111,6 +123,9 @@ func (c *Config) Int(key string, def int) (int, error) {
 }
 
 func (c *Config) Int64(key string, def int64) (int64, error) {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
 	value, ok := c.Item[key]
 	if !ok {
 		return def, nil
@@ -125,6 +140,9 @@ func (c *Config) Int64(key string, def int64) (int64, error) {
 }
 
 func (c *Config) Float64(key string, def float64) (float64, error) {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
 	value, ok := c.Item[key]
 	if !ok {
 		return def, nil
@@ -139,6 +157,9 @@ func (c *Config) Float64(key string, def float64) (float64, error) {
 }
 
 func (c *Config) String(key string, def string) (string, error) {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
 	value, ok := c.Item[key]
 	if !ok {
 		return def, nil
@@ -152,6 +173,9 @@ func (c *Config) String(key string, def string) (string, error) {
 }
 
 func (c *Config) Bool(key string, def bool) (bool, error) {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
 	value, ok := c.Item[key]
 	if !ok {
 		return def, nil
@@ -164,6 +188,9 @@ func (c *Config) Bool(key string, def bool) (bool, error) {
 }
 
 func (c *Config) Array(key string) ([]interface{}, error) {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
 	value, ok := c.Item[key]
 	if !ok {
 		return nil, nil
@@ -176,6 +203,9 @@ func (c *Config) Array(key string) ([]interface{}, error) {
 }
 
 func (c *Config) Map(key string) (map[string]interface{}, error) {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
 	value, ok := c.Item[key]
 	if !ok {
 		return nil, nil
