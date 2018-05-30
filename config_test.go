@@ -28,6 +28,7 @@ func TestParse(t *testing.T) {
 		fmt.Printf("%v\n\n======\n\n", c.Item)
 		fmt.Println("String:")
 		fmt.Println(c.String("servers.alpha.ip", "default"))
+		fmt.Println(c.String("multi.level.first.second.three", "default"))
 		fmt.Println("Int64:")
 		fmt.Println(c.Int64("database.connection_max", 0))
 		fmt.Println("Int:")

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/BurntSushi/toml"
+	"github.com/jonsen/toml"
 )
 
 type Config struct {
